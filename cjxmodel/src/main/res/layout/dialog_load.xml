@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_load"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <com.model.cjx.component.MyLoadView
+        android:id="@+id/loading_view"
+        style="@style/loading_progress_style"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateDuration="700" />
+
+</LinearLayout>

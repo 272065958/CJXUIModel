@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="auto_margin">12dp</dimen>
+    <dimen name="bigger_margin">18dp</dimen>
+    <dimen name="block_line_height">3dp</dimen>
+    <dimen name="button_height">60dp</dimen>
+    <dimen name="divider_height">0.9dp</dimen>
+    <dimen name="double_fab_margin">48dp</dimen>
+    <dimen name="elevation_bottom_bar">3dp</dimen>
+    <dimen name="elevation_title_bar">3dp</dimen>
+    <dimen name="empty_icon">150dp</dimen>
+    <dimen name="fab_margin">24dp</dimen>
+    <dimen name="half_bigger_margin">9dp</dimen>
+    <dimen name="header_size">96dp</dimen>
+    <dimen name="icon_size">45dp</dimen>
+    <dimen name="item_height">72dp</dimen>
+    <dimen name="pixels_height">2dp</dimen>
+    <dimen name="tab_icon_size">30dp</dimen>
+    <dimen name="tab_text_size">13sp</dimen>
+    <dimen name="tab_text_top_margin">34.5dp</dimen>
+    <dimen name="text_margin">6dp</dimen>
+    <dimen name="text_size_big">24sp</dimen>
+    <dimen name="text_size_big_big">40sp</dimen>
+    <dimen name="text_size_middle">15sp</dimen>
+    <dimen name="text_size_more_small">12sp</dimen>
+    <dimen name="text_size_six">18sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="toolbar_height">70dp</dimen>
+</resources>
