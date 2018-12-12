@@ -65,14 +65,13 @@ abstract class BaseBottomTabFragment : BaseFragment() {
     private lateinit var fragments: Array<Fragment?>
 
     override fun createView(inflater: LayoutInflater, container: ViewGroup?): View {
-        val view = View.inflate(activity, R.layout.activity_base_main_tab, null)
-        tabContentView = view.findViewById(R.id.main_tab_content)
-        mainViewId = R.id.main_view
-        return view
+        return View.inflate(activity, R.layout.activity_base_main_tab, null)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        tabContentView = view.findViewById(R.id.main_tab_content)
+        mainViewId = R.id.main_view
         initTabContent()
     }
 

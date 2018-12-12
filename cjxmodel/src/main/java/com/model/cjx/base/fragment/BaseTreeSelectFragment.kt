@@ -13,7 +13,7 @@ import java.util.*
  * Created by cjx on 2018/5/14.
  * 树状选择列表
  */
-abstract class BaseTreeSelectFragment<T> : BaseRecyclerFragment<T, ArrayList<T>>(), TabLayout.OnTabSelectedListener {
+abstract class BaseTreeSelectFragment<T> : BaseRecyclerFragment<T>(), TabLayout.OnTabSelectedListener {
 
     lateinit var tabLayout: TabLayout
     private var topMargin = 0
@@ -82,11 +82,11 @@ abstract class BaseTreeSelectFragment<T> : BaseRecyclerFragment<T, ArrayList<T>>
     /**
      * 展示列表数据
      */
-    override fun displayList(list: ArrayList<T>?, emptyTitle: String, emptyIcon: Int, isLastPage: Boolean, checkEmpty: Boolean) {
+    override fun displayList(list: ArrayList<T>?, isLastPage: Boolean, checkEmpty: Boolean, emptyTitle: String?, emptyIcon: Int) {
         if(list != null){
             trees.add(list)
         }
-        super.displayList(list, emptyTitle, emptyIcon, isLastPage, checkEmpty)
+        super.displayList(list, isLastPage, checkEmpty, emptyTitle, emptyIcon)
     }
 
     /**

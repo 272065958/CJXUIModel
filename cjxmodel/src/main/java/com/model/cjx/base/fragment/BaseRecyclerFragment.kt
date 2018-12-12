@@ -1,6 +1,7 @@
 package com.model.cjx.base.fragment
 
 import android.os.Build
+import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.Gravity
@@ -18,7 +19,11 @@ import java.util.*
  * 加载列表模板
  */
 
-abstract class BaseRecyclerFragment<T, in E> : BaseLoadFragment<E>() {
+abstract class BaseRecyclerFragment<T> : BaseLoadFragment() {
+    /**
+     * 是否显示加载界面
+     */
+    open var openLoad = true
     /**
      * 加载下一页的开关, 最好在onCreate时设置
      */
@@ -45,6 +50,12 @@ abstract class BaseRecyclerFragment<T, in E> : BaseLoadFragment<E>() {
      */
     open var page = 1
     open var limit = 14
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if(openLoad){
+            super.onViewCreated(view, savedInstanceState)
+        }
+    }
 
     /**
      * 加载完成后初始化界面控件
@@ -77,7 +88,8 @@ abstract class BaseRecyclerFragment<T, in E> : BaseLoadFragment<E>() {
     /**
      * 加载完显示列表数据
      */
-    open fun displayList(list: ArrayList<T>?, emptyTitle: String = "没有找到数据", emptyIcon: Int = 0, isLastPage: Boolean = false, checkEmpty: Boolean = true) {
+    open fun displayList(list: ArrayList<T>?, isLastPage: Boolean = false,
+                         checkEmpty: Boolean = true, emptyTitle: String? = "没有找到数据", emptyIcon: Int = 0) {
         // 当前数据是否为null
         if (checkEmpty) {
             if (list == null || list.isEmpty()) {
@@ -95,16 +107,17 @@ abstract class BaseRecyclerFragment<T, in E> : BaseLoadFragment<E>() {
                 hideEmptyView()
             }
         }
-        // 初始化显示数据的contentView
-        initContentView()
-        val recyclerView = this.recyclerView!!
+
         if (adapter == null) {
+            // 初始化显示数据的contentView
+            displayContentView()
             // 初始化adapter
             adapter = getMyBaseAdapter(list)
             // 设置分割线
-            setLayoutManagerAndDivider(recyclerView)
-            recyclerView.adapter = adapter
+            setLayoutManagerAndDivider(this.recyclerView!!)
+            recyclerView!!.adapter = adapter
         } else {
+
             if (!openLoadMore || page == 1) {
                 // 没有加载下一页功能 或者 当前加载的是第一页
                 adapter!!.notifyDataSetChanged(list)
@@ -113,11 +126,11 @@ abstract class BaseRecyclerFragment<T, in E> : BaseLoadFragment<E>() {
                 val oldList = adapter!!.list
                 oldList?.addAll(list!!)
                 adapter!!.notifyDataSetChanged(oldList)
-                val manager = recyclerView.layoutManager
+                val manager = recyclerView!!.layoutManager
                 if (manager is LinearLayoutManager && manager.orientation == LinearLayoutManager.HORIZONTAL) {
-                    recyclerView.smoothScrollBy(resources.getDimensionPixelSize(R.dimen.fab_margin), 0)
+                    recyclerView!!.smoothScrollBy(resources.getDimensionPixelSize(R.dimen.fab_margin), 0)
                 } else {
-                    recyclerView.smoothScrollBy(0, resources.getDimensionPixelSize(R.dimen.fab_margin))
+                    recyclerView!!.smoothScrollBy(0, resources.getDimensionPixelSize(R.dimen.fab_margin))
                 }
             }
         }
@@ -125,18 +138,18 @@ abstract class BaseRecyclerFragment<T, in E> : BaseLoadFragment<E>() {
         if (openLoadMore) {
             if (page == 1) {
                 // 滚回顶部
-                recyclerView.layoutManager?.scrollToPosition(0)
+                recyclerView!!.layoutManager?.scrollToPosition(0)
             }
             if (isLastPage) {
-                recyclerView.footerLoadListener = null
+                recyclerView!!.footerLoadListener = null
             } else {
 
-                recyclerView.footerLoadListener = getFooterLoadListener()
+                recyclerView!!.footerLoadListener = getFooterLoadListener()
             }
-            recyclerView.footerLoadState = false
+            recyclerView!!.footerLoadState = false
         } else {
             // 滚回顶部
-            recyclerView.layoutManager?.scrollToPosition(0)
+            recyclerView!!.layoutManager?.scrollToPosition(0)
         }
     }
 

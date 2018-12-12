@@ -1,6 +1,5 @@
 package com.model.cjx.component
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.support.constraint.ConstraintLayout
@@ -12,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.model.cjx.R
-import com.model.cjx.common.ImageLoadUtil
 import java.util.*
 
 /**
@@ -20,7 +18,7 @@ import java.util.*
  *
  */
 
-class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: AttributeSet? = null) : ConstraintLayout(context, attrs), View.OnClickListener {
+class AdPlayView<VH : AdPlayView.BaseAdBean>(context: Context, attrs: AttributeSet? = null) : ConstraintLayout(context, attrs), View.OnClickListener {
 
     /**
      * 翻页控件
@@ -29,7 +27,7 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
     /**
      * 翻页控件适配器
      */
-    private var viewAdapter: AdverRepeatAdapter<VH>? = null
+    private var viewAdapter: AdRepeatAdapter<VH>? = null
     /**
      * 页码指示控件
      */
@@ -37,7 +35,8 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
     /**
      * 翻页回调
      */
-    private var pageListener: AdverRepeatListener? = null
+    private var pageListener: AdRepeatListener? = null
+    private var adListener: OnAdActionListener? = null
 
 
     private var firstView: ImageView? = null // 显示第一张图片的容器
@@ -130,10 +129,10 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
         initViews(count)
 
         if (viewAdapter == null) {
-            viewAdapter = AdverRepeatAdapter(context, list, this.views!!, firstView, lastView)
+            viewAdapter = AdRepeatAdapter(context, list, this.views!!, firstView, lastView)
             viewPager.adapter = viewAdapter
             // 翻页监听
-            pageListener = AdverRepeatListener(viewPager, pointView, list!!.size)
+            pageListener = AdRepeatListener(viewPager, pointView, list!!.size)
             viewPager.addOnPageChangeListener(pageListener!!)
         } else {
             viewAdapter!!.notifyDataSetChanged(list, this.views!!, firstView, lastView)
@@ -150,6 +149,34 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
             startScroll()
         }
         pointView.setPosition(0)
+    }
+
+    /**
+     * 开始自动滚动
+     */
+    fun startScroll() {
+        if (timer != null) {
+            stopScroll()
+        }
+        timer = Timer(true)
+        timerTask = MyTimerTask(viewPager)
+        timer!!.schedule(timerTask, 0, 1000)
+    }
+
+    fun stopScroll() {
+        if (timer != null) {
+            timer!!.cancel()
+            timer = null
+        }
+        if (timerTask != null) {
+            timerTask?.isPause = false
+            timerTask?.cancel()
+            timerTask = null
+        }
+    }
+
+    fun setOnAdActionListener(listener: OnAdActionListener) {
+        adListener = listener
     }
 
     /**
@@ -204,31 +231,6 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
     private fun setPause(isPause: Boolean) {
         timerTask?.initPause(isPause)
     }
-
-    /**
-     * 开始自动滚动
-     */
-    fun startScroll() {
-        if (timer != null) {
-            stopScroll()
-        }
-        timer = Timer(true)
-        timerTask = MyTimerTask(viewPager)
-        timer!!.schedule(timerTask, 0, 1000)
-    }
-
-    fun stopScroll() {
-        if (timer != null) {
-            timer!!.cancel()
-            timer = null
-        }
-        if (timerTask != null) {
-            timerTask?.isPause = false
-            timerTask?.cancel()
-            timerTask = null
-        }
-    }
-
 
     private class MyViewPager(context: Context) : ViewPager(context) {
 
@@ -291,7 +293,7 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
      * (此方式不适用于当原广告长度只有2个时的情况)
      * 当原广告只有两页的时候,情况特殊处理, 只需要两个循环用的view和第一位置view和最后一个位置view就可以实现循环
      */
-    private class AdverRepeatAdapter<VH : BaseAdverBean>(val context: Context, list: ArrayList<VH>?, views: ArrayList<ImageView>, firstView: ImageView?, lastView: ImageView) : PagerAdapter() {
+    private inner class AdRepeatAdapter<VH : BaseAdBean>(val context: Context, list: ArrayList<VH>?, views: ArrayList<ImageView>, firstView: ImageView?, lastView: ImageView) : PagerAdapter() {
         private var views: ArrayList<ImageView>? = null
         private var firstView: ImageView? = null
         private var lastView: ImageView? = null
@@ -337,8 +339,10 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
             container.removeView(view)
             container.addView(view)
             val bean = list?.get(position)
-            ImageLoadUtil.setImage(context as Activity, view!!, bean?.getImage())
-            return view
+            if (adListener != null) {
+                adListener!!.onImageLoad(view!!, bean!!)
+            }
+            return view!!
         }
 
         override fun isViewFromObject(view: View, `object`: Any): Boolean = view == `object`
@@ -352,7 +356,7 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
 
     }
 
-    private class AdverRepeatListener(private val viewPager: ViewPager, private val pointView: PagePointView, count: Int) : ViewPager.OnPageChangeListener {
+    private class AdRepeatListener(private val viewPager: ViewPager, private val pointView: PagePointView, count: Int) : ViewPager.OnPageChangeListener {
 
         private var pageCount = 0
 
@@ -392,7 +396,12 @@ class AdverPlayView<VH : AdverPlayView.BaseAdverBean>(context: Context, attrs: A
         }
     }
 
-    abstract class BaseAdverBean {
+    abstract class BaseAdBean {
         abstract fun getImage(): String?
+    }
+
+    interface OnAdActionListener {
+        fun onClick(ad: BaseAdBean)
+        fun onImageLoad(imageView: ImageView, ad: BaseAdBean)
     }
 }

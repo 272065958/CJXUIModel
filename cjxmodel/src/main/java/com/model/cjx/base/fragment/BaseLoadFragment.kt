@@ -13,13 +13,12 @@ import com.model.cjx.MyApplication
 import com.model.cjx.R
 import com.model.cjx.component.EmptyView
 import com.model.cjx.component.MyLoadView
-import com.model.cjx.http.HttpCallbackInterface
 
 /**
  * Created by cjx on 18-3-12.
  * 基本加载数据碎片
  */
-abstract class BaseLoadFragment<in T> : BaseFragment(), HttpCallbackInterface<T> {
+abstract class BaseLoadFragment : BaseFragment() {
 
     /**
      * 标记是否调用过loadData函数
@@ -68,11 +67,8 @@ abstract class BaseLoadFragment<in T> : BaseFragment(), HttpCallbackInterface<T>
         return parentView
     }
 
-    /**
-     * 当前activity显示时启动加载功能
-     */
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         if (loadView == null) {
             loadView = MyLoadView(activity)
             loadView!!.layoutParams = getCenterLayoutParams()
@@ -231,15 +227,15 @@ abstract class BaseLoadFragment<in T> : BaseFragment(), HttpCallbackInterface<T>
     /**
      * 初始化加载内容后的布局, 通常在获取数据完成,并且有数据的时候调用
      */
-    open fun initContentView() {
+    open fun displayContentView() {
         // 如果初始化view, 则重新添加view到parentView上, 如果没有, 创建contentView
         if (!isInitContent) {
             isInitContent = true
             if (openRefresh) {
                 initRefreshView()
                 contentView = createContentView()
-                swipeRefreshLayout!!.addView(contentView)
-                parentView.addView(swipeRefreshLayout, getFullLayoutParams())
+                swipeRefreshLayout!!.addView(contentView, getFullLayoutParams())
+                parentView.addView(swipeRefreshLayout)
             } else {
                 contentView = createContentView()
                 parentView.addView(contentView, getFullLayoutParams())
@@ -267,37 +263,4 @@ abstract class BaseLoadFragment<in T> : BaseFragment(), HttpCallbackInterface<T>
      */
     abstract fun loadData()
 
-    /**
-     * 显示加载的数据
-     */
-    abstract fun displayData(obj: T?, vararg tag: Any?)
-
-    /***************************************************************************/
-    /*************************  HttpCallbackInterface  *************************/
-    /*************************  默认处理加载界面数据的回调 *************************/
-    /***************************************************************************/
-
-    /**
-     * 显示错误信息
-     */
-    override fun showError(error: String, icon: Int) {
-        endLoad()
-        showEmptyView(error, icon)
-    }
-
-    /**
-     * 用户认证信息错误
-     */
-    override fun tokenError(error: String) {
-        endLoad()
-        showToast(error)
-    }
-
-    /**
-     * 设置界面数据
-     */
-    override fun setContentData(obj: T?, vararg tag: Any?) {
-        endLoad()
-        displayData(obj, *tag)
-    }
 }
