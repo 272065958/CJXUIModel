@@ -1,1 +1,1 @@
-# CJXUIMOdel
+# CJXUIModel
