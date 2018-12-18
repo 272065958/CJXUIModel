@@ -67,7 +67,7 @@ public class SecondFragment extends BaseRecyclerFragment<String> {
                         list.add("测试2");
                         list.add("测试3");
                         endLoad();
-                        displayList(list, false, false, null, 0);
+                        displayList(list, false, null, 0);
                     }
                 });
             }

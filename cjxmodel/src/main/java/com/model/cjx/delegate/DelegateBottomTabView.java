@@ -56,16 +56,21 @@ public abstract class DelegateBottomTabView {
     private Fragment[] fragments;
 
     private FragmentManager manager;
-    private Context context;
 
-    private int textSelectColor = Color.GRAY;
-    private int textNormalColor = Color.BLACK;
+    private int textSelectColor = Color.BLUE;
+    private int textNormalColor = Color.GRAY;
 
-    public DelegateBottomTabView(FragmentManager manager, Context context) {
+    public DelegateBottomTabView(FragmentManager manager) {
         this.manager = manager;
-        this.context = context;
     }
 
+    /**
+     * 设置底部tab文字颜色
+     *
+     * @param textNormalColor 未选中时的颜色
+     * @param textSelectColor 选中状态的颜色
+     * @return 当前代理类
+     */
     public DelegateBottomTabView setTextColor(int textNormalColor, int textSelectColor) {
         this.textNormalColor = textNormalColor;
         this.textSelectColor = textSelectColor;
@@ -74,8 +79,11 @@ public abstract class DelegateBottomTabView {
 
     /**
      * 初始化底部tab
+     *
+     * @param mainViewId     显示fragment的主控件id
+     * @param tabContentView 底部tab的容器
      */
-    public void initTabContent(int mainViewId, ViewGroup tabContentView) {
+    public void initTabContent(Context context, int mainViewId, ViewGroup tabContentView) {
         this.mainViewId = mainViewId;
         this.tabs = getTabs();
         int size = tabs.length;
@@ -84,19 +92,22 @@ public abstract class DelegateBottomTabView {
         }
         initData(size);
         for (int i = 0; i < size; i++) {
-            tabContentView.addView(createItemTabView(i, tabs[i]));
+            tabContentView.addView(createItemTabView(context, i, tabs[i]));
         }
         selectPosition(0);
     }
 
     /**
      * 设置指定下标的提示消息数
+     *
+     * @param position 在那个下标的tab上显示消息数
+     * @param count    显示消息的数值
      */
-    public void setBadge(int position, int count) {
+    public void setBadge(Context context, int position, int count) {
         if (titleViews == null) {
             return;
         }
-        TextView badgeView = createBadgeView(position);
+        TextView badgeView = createBadgeView(context, position);
         if (count < 1) {
             badgeView.setVisibility(View.GONE);
         } else {
@@ -106,19 +117,22 @@ public abstract class DelegateBottomTabView {
     }
 
     /**
-     * 获取指定下标的提示消息数的控件
+     * 创建指定下标的提示消息数的控件
+     *
+     * @param position 下标位置
+     * @return 显示消息数的控件
      */
-    protected TextView createBadgeView(int position) {
+    protected TextView createBadgeView(Context context, int position) {
         if (badgeViews == null) {
             badgeViews = new TextView[titleViews.length];
         }
         TextView badgeView;
-        if (badgeViews[position] ==null){
+        if (badgeViews[position] == null) {
             TextView view = getBadgeView(context);
             badgeViews[position] = view;
-            ((ViewGroup)iconViews[position].getParent()).addView(view);
+            ((ViewGroup) iconViews[position].getParent()).addView(view);
             badgeView = view;
-        } else{
+        } else {
             badgeView = badgeViews[position];
         }
         return badgeView;
@@ -131,7 +145,7 @@ public abstract class DelegateBottomTabView {
      * @param tab      tab的内容
      * @return 返回一个tabview
      */
-    protected View createItemTabView(int position, TabBean tab) {
+    protected View createItemTabView(Context context, int position, TabBean tab) {
         View v = View.inflate(context, R.layout.item_main_tab, null);
         v.setTag(position);
         v.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f));
@@ -177,8 +191,6 @@ public abstract class DelegateBottomTabView {
 
     /**
      * 设置当前选中位置
-     *
-     * @param tabPosition 选中位置
      */
     private void selectPosition(int tabPosition) {
         if (prevIndex == tabPosition) {
@@ -190,7 +202,7 @@ public abstract class DelegateBottomTabView {
         if (prevFragment != null) {
             fragmentTransaction.hide(prevFragment);
         }
-        if (tabs[tabPosition].getAttach()) {
+        if (tabs[tabPosition].isAttach()) {
             fragmentTransaction.show(fragment);
         } else {
             fragments[tabPosition] = fragment;
@@ -222,15 +234,13 @@ public abstract class DelegateBottomTabView {
         return textView;
     }
 
-
-
     /**
      * 获取底部tab的数组
      */
-    abstract TabBean[] getTabs();
+    protected abstract TabBean[] getTabs();
 
     /**
      * 获取指定位置的view
      */
-    abstract Fragment getFragment(int position);
+    protected abstract Fragment getFragment(int position);
 }
